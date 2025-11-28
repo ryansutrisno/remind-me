@@ -6,7 +6,7 @@ export function useCalendars() {
   return useQuery({ queryKey: ['calendars'], queryFn: listCalendars })
 }
 
-export function useEvents(calendarId?: string, filters?: { timeMin?: string; timeMax?: string }) {
+export function useEvents(calendarId?: string, filters?: { timeMin?: string; timeMax?: string; onlyReminders?: boolean; hideBirthdays?: boolean }) {
   return useQuery({
     queryKey: ['events', calendarId, filters],
     queryFn: () => listEvents({ calendarId: calendarId!, timeMin: filters?.timeMin, timeMax: filters?.timeMax }),
@@ -37,4 +37,3 @@ export function useDeleteEvent(calendarId?: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['events', calendarId] }),
   })
 }
-

@@ -9,10 +9,9 @@ type Props = {
 
 export function Toggle({ checked, onToggle, label }: Props) {
   return (
-    <button type="button" onClick={onToggle} className="inline-flex items-center gap-2 select-none">
+    <div role="button" tabIndex={0} onClick={onToggle} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onToggle() }} className="inline-flex items-center gap-2 select-none">
       <Switch checked={checked} />
-      <span className="text-xs whitespace-nowrap leading-none">{label}</span>
-    </button>
+      <span className="text-xs leading-none max-w-[160px] truncate">{label}</span>
+    </div>
   )
 }
-

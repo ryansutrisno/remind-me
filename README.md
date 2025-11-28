@@ -1,100 +1,112 @@
-# Remind Me — Aplikasi Pengingat Terintegrasi Google Calendar
+# Remind Me — Google Calendar Integrated Reminder App
 
-Aplikasi pembungkus untuk melisting dan mengelola pengingat berbasis Google Calendar. Dibangun dengan React + TypeScript (Vite), Tailwind CSS, komponen gaya shadcn-ui, dukungan mode gelap/terang berbasis sistem, dan i18n (English + Bahasa Indonesia).
+Remind Me is a wrapper application to list and manage reminders based on Google Calendar. Built with React + TypeScript (Vite), Tailwind CSS, shadcn‑style components, system‑aware dark/light theme, and i18n (English + Bahasa Indonesia).
 
-## Fitur Utama
-- Login dengan Google (Google Identity Services, OAuth 2.0) langsung di browser.
-- Menampilkan daftar event/pengingat dari Google Calendar dalam rentang waktu yang dipilih.
-- Form tambah/ubah pengingat dengan field yang setara Google Calendar (summary, description, start/end, all-day, location, color, visibility, transparency, attendees, recurrence RRULE, reminders).
-- Hapus event dengan konfirmasi.
-- Filter “Reminders only” untuk menampilkan hanya event yang memiliki pengingat.
-- Opsi menyembunyikan kalender “Birthdays” agar hasil lebih relevan.
-- Responsif mobile, aksesibilitas dasar, loading skeleton, empty state, dan error handling yang informatif.
-- Mode tema: System, Light, Dark (default mengikuti sistem pengguna).
-- I18n: English (default) dan Bahasa Indonesia dengan toggle ikon.
+## Key Features
 
-## Teknologi
+- Google Sign‑In (Google Identity Services, OAuth 2.0) directly in the browser.
+- Display events/reminders from Google Calendar over a chosen time range.
+- Create/edit form mirroring Google Calendar fields (summary, description, start/end, all‑day, location, color, visibility, transparency, attendees, recurrence RRULE, reminders).
+- Delete events with confirmation.
+- “Reminders only” filter to show only events that have reminders.
+- Option to hide the “Birthdays” calendar for more relevant results.
+- Mobile‑responsive UI, basic accessibility, loading skeleton, empty state, and informative error handling.
+- Theme modes: System, Light, Dark (default follows the user system).
+- i18n: English (default) and Bahasa Indonesia with a toggle.
+
+## Tech Stack
+
 - `React`, `TypeScript`, `Vite`
-- `Tailwind CSS`, komponen UI ala shadcn (custom minimal)
-- `@tanstack/react-query` untuk fetching/caching
-- `date-fns` untuk format tanggal
-- `react-icons` untuk ikon globe
+- `Tailwind CSS`, shadcn‑style custom minimal components
+- `@tanstack/react-query` for fetching/caching
+- `date-fns` for date formatting
+- `react-icons` for icons
 
-## Persiapan Google Cloud Console
-1. Aktifkan Google Calendar API di project Cloud.
-2. Buat OAuth Client ID bertipe `Web application`.
-3. Tambahkan `Authorized JavaScript origins` untuk pengembangan: `http://localhost:5174/`.
-4. Scope yang digunakan:
+## Google Cloud Console Setup
+
+1. Enable Google Calendar API in your Cloud project.
+2. Create an OAuth Client ID of type `Web application`.
+3. Add `Authorized JavaScript origins` for development: `http://localhost:5174/`.
+4. Scopes required:
    - `https://www.googleapis.com/auth/calendar.readonly`
    - `https://www.googleapis.com/auth/calendar.events`
-5. Pada OAuth Consent Screen:
-   - Set “User Type” ke External.
-   - Tambahkan akun kamu di “Test users” jika belum publish.
+5. On the OAuth Consent Screen:
+   - Set “User Type” to External.
+   - Add your account under “Test users” if not published yet.
 
-## Konfigurasi Lingkungan
-Buat file `.env` atau `.env.local` di root proyek:
+## Environment Configuration
+
+Create `.env` or `.env.local` at project root:
 
 ```
-VITE_GOOGLE_CLIENT_ID=<CLIENT_ID_DARI_GOOGLE_CLOUD>
+VITE_GOOGLE_CLIENT_ID=<YOUR_GOOGLE_CLOUD_CLIENT_ID>
 ```
 
-## Menjalankan Secara Lokal
-- Instal dependensi: `npm install`
-- Jalankan dev server: `npm run dev`
-- Buka: `http://localhost:5174/`
+## Local Development
 
-Catatan: Port dev default diatur ke `5174` dan menggunakan `strictPort: true` untuk menghindari bentrok.
+- Install deps: `npm install`
+- Run dev server: `npm run dev`
+- Open: `http://localhost:5174/`
 
-## Struktur Berkas Penting
-- `src/lib/google.ts` — inisialisasi OAuth, memperoleh token, dan wrapper `googleFetch`.
-- `src/features/calendar/api.ts` — pemanggilan REST API Calendar (list calendars, list events, create, update, delete).
-- `src/features/calendar/hooks.ts` — hooks React Query untuk data kalender/events dan mutasi.
-- `src/pages/LoginPage.tsx` — halaman login (judul, tagline, toggle bahasa, dropdown tema, footer credit).
-- `src/pages/Dashboard.tsx` — daftar pengingat, filter, aksi CRUD, dialog form.
-- `src/components/ReminderForm.tsx` — form dengan field setara Google Calendar.
-- `src/providers/ThemeProvider.tsx` — mode `system | light | dark` dengan persist.
-- `src/providers/I18nProvider.tsx` — i18n minimal untuk en/id.
+Note: The dev port is set to `5174` with `strictPort: true` to avoid conflicts.
 
-## Integrasi API Calendar
+## Important Files
+
+- `src/lib/google.ts` — OAuth init, token acquisition, and `googleFetch` wrapper.
+- `src/features/calendar/api.ts` — REST calls (list calendars/events, create, update, delete).
+- `src/features/calendar/hooks.ts` — React Query hooks for calendars/events and mutations.
+- `src/pages/LoginPage.tsx` — login page (title, tagline, language toggle, theme dropdown, footer credit).
+- `src/pages/Dashboard.tsx` — reminders list, filters, CRUD actions, form dialog.
+- `src/components/ReminderForm.tsx` — form mirroring Google Calendar fields.
+- `src/providers/ThemeProvider.tsx` — `system | light | dark` mode with persistence.
+- `src/providers/I18nProvider.tsx` — minimal i18n for en/id.
+
+## Calendar API Integration
+
 - List calendars: `GET /calendar/v3/users/me/calendarList`
 - List events: `GET /calendar/v3/calendars/{calendarId}/events?singleEvents=true&orderBy=startTime&timeMin=...&timeMax=...`
 - Create event: `POST /calendar/v3/calendars/{calendarId}/events`
 - Update event: `PATCH /calendar/v3/calendars/{calendarId}/events/{eventId}`
 - Delete event: `DELETE /calendar/v3/calendars/{calendarId}/events/{eventId}`
 
-Pemetaan field form ↔ Google Calendar:
-- Judul → `summary`
-- Deskripsi → `description`
-- Lokasi → `location`
-- Waktu mulai/selesai → `start.dateTime` / `end.dateTime` atau `start.date` / `end.date` (all-day)
-- Zona waktu → `start.timeZone` / `end.timeZone` (opsional)
-- Warna → `colorId`
-- Visibilitas → `visibility` (`default` | `public` | `private` | `confidential`)
-- Transparansi → `transparency` (`opaque` | `transparent`)
-- Tamu → `attendees[].email`
-- Recurrence → `recurrence[]` (RRULE, misal `RRULE:FREQ=DAILY;COUNT=10`)
-- Reminders → `reminders.useDefault` atau `reminders.overrides[]` ({ method: `popup` | `email`, minutes: number })
+Form ↔ Google Calendar field mapping:
 
-## UX dan Responsivitas
-- Layout dashboard menggunakan grid responsif (1→2 kolom), tombol full-width di mobile.
-- Dialog form memiliki `max-height` dan `overflow-y-auto` untuk mencegah overlap.
-- Toggle disederhanakan dengan komponen `Toggle` agar label tidak shifting saat diklik.
+- Title → `summary`
+- Description → `description`
+- Location → `location`
+- Start/End → `start.dateTime` / `end.dateTime` or `start.date` / `end.date` (all‑day)
+- Time zone → `start.timeZone` / `end.timeZone` (optional)
+- Color → `colorId`
+- Visibility → `visibility` (`default` | `public` | `private` | `confidential`)
+- Transparency → `transparency` (`opaque` | `transparent`)
+- Guests → `attendees[].email`
+- Recurrence → `recurrence[]` (RRULE, e.g. `RRULE:FREQ=DAILY;COUNT=10`)
+- Reminders → `reminders.useDefault` or `reminders.overrides[]` ({ method: `popup` | `email`, minutes: number })
 
-## Keamanan
-- Token OAuth hanya disimpan di memory (opsional persist minimal). Jangan commit secret.
-- Jangan log data sensitif. Gunakan scope minimal yang diperlukan.
+## UX & Responsiveness
+
+- Dashboard uses responsive grid (1→2 columns), primary actions are full‑width on mobile.
+- Form dialog has `max-height` and `overflow-y-auto` to prevent overlap.
+- Toggles use a unified component to avoid label shifting.
+
+## Security
+
+- OAuth token stored in memory (with minimal optional persistence). Do not commit secrets.
+- Avoid logging sensitive data. Use minimal scopes required.
 
 ## Troubleshooting
+
 - 401/403 (Unauthorized/Forbidden):
-  - Pastikan client ID benar, origin `http://localhost:5174/` sudah terdaftar, consent screen dan test users sudah diatur, scope sesuai.
-  - Re-consent: klik “Sign in with Google” ulang.
-- Hasil penuh “Happy birthday!”:
-  - Atur rentang waktu (default: sekarang hingga +30 hari).
-  - Aktifkan “Reminders only” dan “Hide Birthdays calendar”.
+  - Ensure client ID is correct, origin `http://localhost:5174/` is registered, consent screen/test users configured, scopes granted.
+  - Re‑consent: click “Sign in with Google” again.
+- “Happy birthday!” dominates results:
+  - Adjust the time range (default: now → +30 days).
+  - Enable “Reminders only” and “Hide Birthdays calendar”.
 
-## Catatan
-- Beberapa akun memigrasikan “Reminders” ke “Google Tasks”; aplikasi ini memanfaatkan `events + reminders` di Calendar untuk menandai pengingat.
+## Notes
 
-## Kredit
+- Some accounts have migrated “Reminders” to “Google Tasks”; this app uses Calendar `events + reminders` to indicate reminders.
+
+## Credits
+
 Made with ❤️ by Ryan Sutrisno — https://ryansutrisno.com
-
