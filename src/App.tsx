@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { FiGlobe, FiLogOut } from 'react-icons/fi'
 import { Button } from './components/ui/button'
-import { Select } from './components/ui/select'
 import { getTokenRemainingMs, hasAccessToken, initGoogleOAuth, logoutGoogle, refreshTokenSilent } from './lib/google'
 import { Dashboard } from './pages/Dashboard'
 import { LoginPage } from './pages/LoginPage'
@@ -9,10 +8,11 @@ import { I18nProvider, useI18n } from './providers/I18nProvider'
 import { QueryProvider } from './providers/QueryProvider'
 import { ThemeProvider, useTheme } from './providers/ThemeProvider'
 
+import { FiMoon, FiSun } from 'react-icons/fi'
 import { Badge } from './components/ui/badge'
 
 function Shell({ onLogout, status }: { onLogout: () => void; status: string }) {
-  const { mode, setMode } = useTheme()
+  const { theme, setMode } = useTheme()
   const { lang, toggle, t } = useI18n()
   return (
     <div>
@@ -21,7 +21,7 @@ function Shell({ onLogout, status }: { onLogout: () => void; status: string }) {
           <h1 className="text-xl font-semibold">{t('app.title')}</h1>
           <p className="text-sm opacity-70">{t('app.tagline')}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
           {(() => {
             const v = status === 'Connected' ? 'success' : status.startsWith('Refresh') || status.startsWith('Expiring') ? 'warning' : 'error'
             return <Badge variant={v}>{status}</Badge>
@@ -30,12 +30,10 @@ function Shell({ onLogout, status }: { onLogout: () => void; status: string }) {
             <FiGlobe />
             <span className="text-xs">{lang.toUpperCase()}</span>
           </button>
-          <Select value={mode} onChange={e => setMode(e.target.value as any)}>
-            <option value="system">System</option>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </Select>
-          <Button variant="ghost" title="Logout" aria-label="Logout" onClick={onLogout}><FiLogOut /></Button>
+          <Button variant="ghost" aria-label="Toggle theme" title="Toggle theme" onClick={() => setMode(theme === 'dark' ? 'light' : 'dark')}>
+            {theme === 'dark' ? <FiSun className="h-5 w-5 text-yellow-400" /> : <FiMoon className="h-5 w-5" />}
+          </Button>
+          <Button variant="ghost" title="Logout" aria-label="Logout" onClick={onLogout}><FiLogOut className="h-5 w-5 text-blue-500" /></Button>
         </div>
       </header>
     </div>
