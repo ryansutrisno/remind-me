@@ -87,12 +87,6 @@ export function Dashboard() {
         <Card className="shadow-sm mb-4">
           <CardContent>
             <div className="flex flex-col md:flex-row md:flex-wrap gap-3 md:gap-4 items-end">
-              <div className="w-full md:flex-1 md:min-w-[220px] md:max-w-sm">
-                <label className="text-sm">{t('dashboard.calendar')}</label>
-                <Select value={calendarId} onChange={e => setCalendarId(e.target.value)}>
-                  {filteredCalendars.map(c => <option key={c.id} value={c.id}>{c.summary}{c.primary ? ' (Utama)' : ''}</option>)}
-                </Select>
-              </div>
               <div className="w-full md:flex-1 md:min-w-[200px] md:max-w-xs">
                 <label className="text-sm">{t('dashboard.startFrom')}</label>
                 <input type="datetime-local" value={startValue} className="h-10 w-full px-3 rounded-md border border-neutral-300 dark:border-neutral-700 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 bg-transparent text-neutral-900 dark:text-neutral-100" onChange={e => { setStartValue(e.target.value); setTimeMin(new Date(e.target.value).toISOString()) }} />

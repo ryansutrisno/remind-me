@@ -5,6 +5,8 @@ const STORAGE_KEY = 'oauth_token_info';
 const SCOPES = [
   'https://www.googleapis.com/auth/calendar.readonly',
   'https://www.googleapis.com/auth/calendar.events',
+  'https://www.googleapis.com/auth/userinfo.profile',
+  'https://www.googleapis.com/auth/userinfo.email',
 ].join(' ');
 
 declare global {
@@ -110,6 +112,7 @@ export function logoutGoogle() {
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch {}
+  try { localStorage.removeItem('oauth_user_info'); } catch {}
 }
 
 export function hasAccessToken() {
@@ -130,4 +133,26 @@ export async function refreshTokenSilent() {
   } catch {
     await getAccessToken({prompt: 'consent'});
   }
+}
+
+type UserInfo = { email?: string; picture?: string; name?: string };
+let userInfoCache: UserInfo | null = null;
+
+export async function getUserInfo() {
+  if (userInfoCache) return userInfoCache;
+  const stored = localStorage.getItem('oauth_user_info');
+  if (stored) {
+    try { userInfoCache = JSON.parse(stored) as UserInfo; return userInfoCache; } catch {}
+  }
+  const token = await getAccessToken({prompt: ''});
+  const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.ok) {
+    const data = await res.json();
+    userInfoCache = { email: data.email, picture: data.picture, name: data.name };
+    try { localStorage.setItem('oauth_user_info', JSON.stringify(userInfoCache)); } catch {}
+    return userInfoCache;
+  }
+  return { email: undefined, picture: undefined, name: undefined };
 }
