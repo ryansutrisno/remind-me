@@ -1,17 +1,17 @@
+import { endOfMonth, endOfWeek, endOfYear, format, startOfMonth, startOfWeek, startOfYear, subMonths, subWeeks, subYears } from 'date-fns'
+import { id as localeID } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
-import { useCalendars, useEvents, useCreateEvent, useUpdateEvent, useDeleteEvent } from '../features/calendar/hooks'
+import { FiEdit2, FiTrash } from 'react-icons/fi'
+import { ReminderForm } from '../components/ReminderForm'
+import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
+import { Card, CardContent, CardHeader } from '../components/ui/card'
+import { Dialog } from '../components/ui/dialog'
 import { Select } from '../components/ui/select'
 import { Toggle } from '../components/ui/toggle'
-import { Card, CardContent, CardHeader } from '../components/ui/card'
-import { Badge } from '../components/ui/badge'
-import { Dialog } from '../components/ui/dialog'
-import { ReminderForm } from '../components/ReminderForm'
+import { useCalendars, useCreateEvent, useDeleteEvent, useEvents, useUpdateEvent } from '../features/calendar/hooks'
 import type { CalendarEvent } from '../features/calendar/types'
-import { format } from 'date-fns'
-import { id as localeID } from 'date-fns/locale'
 import { useI18n } from '../providers/I18nProvider'
-import { FiEdit2, FiTrash } from 'react-icons/fi'
 
 export function Dashboard() {
   const { t } = useI18n()
@@ -34,8 +34,17 @@ export function Dashboard() {
   }, [primary, calendarId, calendars, hideBirthdays])
   const now = new Date()
   const defaultMax = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
-  const [timeMin, setTimeMin] = useState<string | undefined>(now.toISOString())
-  const [timeMax, setTimeMax] = useState<string | undefined>(defaultMax.toISOString())
+  const fmtLocal = (d: Date) => {
+    const p = (n: number) => String(n).padStart(2, '0')
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
+  }
+  const s0 = startOfYear(now)
+  const e0 = endOfYear(now)
+  const [startValue, setStartValue] = useState<string>(fmtLocal(s0))
+  const [endValue, setEndValue] = useState<string>(fmtLocal(e0))
+  const [timeMin, setTimeMin] = useState<string | undefined>(s0.toISOString())
+  const [timeMax, setTimeMax] = useState<string | undefined>(e0.toISOString())
+  const [rangePreset, setRangePreset] = useState<string>('this_year')
   const [onlyReminders, setOnlyReminders] = useState<boolean>(true)
   const { data: events, isLoading, error } = useEvents(calendarId, { timeMin, timeMax, onlyReminders, hideBirthdays })
   const isBirthdaysCal = (summary?: string, id?: string) => {
@@ -77,45 +86,68 @@ export function Dashboard() {
       {filteredCalendars && filteredCalendars.length > 0 && (
         <Card className="shadow-sm mb-4">
           <CardContent>
-        <div className="flex flex-col md:flex-row md:flex-wrap gap-3 md:gap-4 items-end">
-          <div className="w-full md:flex-1 md:min-w-[220px] md:max-w-sm">
-            <label className="text-sm">{t('dashboard.calendar')}</label>
-            <Select value={calendarId} onChange={e => setCalendarId(e.target.value)}>
-              {filteredCalendars.map(c => <option key={c.id} value={c.id}>{c.summary}{c.primary ? ' (Utama)' : ''}</option>)}
-            </Select>
-          </div>
-          <div className="w-full md:flex-1 md:min-w-[200px] md:max-w-xs">
-            <label className="text-sm">{t('dashboard.startFrom')}</label>
-            <input type="datetime-local" className="h-10 w-full px-3 rounded-md border border-neutral-300 dark:border-neutral-700 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 bg-transparent text-neutral-900 dark:text-neutral-100" onChange={e => setTimeMin(new Date(e.target.value).toISOString())} />
-          </div>
-          <div className="w-full md:flex-1 md:min-w-[200px] md:max-w-xs">
-            <label className="text-sm">{t('dashboard.until')}</label>
-            <input type="datetime-local" className="h-10 w-full px-3 rounded-md border border-neutral-300 dark:border-neutral-700 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 bg-transparent text-neutral-900 dark:text-neutral-100" onChange={e => setTimeMax(new Date(e.target.value).toISOString())} />
-          </div>
-          <div className="flex w-full md:w-auto md:ml-auto items-center gap-2 md:gap-3">
-            <Button variant="primary" className="flex-shrink-0 w-full md:w-auto" onClick={() => { setEditing(null); setOpenForm(true) }}>{t('dashboard.addReminder')}</Button>
-          </div>
-          <div className="flex w-full flex-row flex-wrap items-center gap-2">
-            <Toggle checked={onlyReminders} onToggle={() => setOnlyReminders(v => !v)} label={onlyReminders ? t('filters.remindersOnly') : t('filters.allEvents')} />
-            <Toggle
-              checked={!hideBirthdays}
-              onToggle={() => {
-                const next = !hideBirthdays
-                setHideBirthdays(next)
-                if (!next) {
-                  // hiding birthdays → pilih kalender non-birthday
-                  const nonBirth = calendars?.find(c => !((c.summary || '').toLowerCase().includes('birthday') || (c.id || '').includes('group.v.calendar.google.com')))
-                  if (nonBirth?.id) setCalendarId(nonBirth.id)
-                } else {
-                  // showing birthdays → auto switch ke kalender birthdays jika ada
-                  const birth = calendars?.find(c => ((c.summary || '').toLowerCase().includes('birthday')) || ((c.id || '').includes('group.v.calendar.google.com')))
-                  if (birth?.id) setCalendarId(birth.id)
-                }
-              }}
-              label={hideBirthdays ? t('filters.birthdays.hide') : t('filters.birthdays.show')}
-            />
-          </div>
-        </div>
+            <div className="flex flex-col md:flex-row md:flex-wrap gap-3 md:gap-4 items-end">
+              <div className="w-full md:flex-1 md:min-w-[220px] md:max-w-sm">
+                <label className="text-sm">{t('dashboard.calendar')}</label>
+                <Select value={calendarId} onChange={e => setCalendarId(e.target.value)}>
+                  {filteredCalendars.map(c => <option key={c.id} value={c.id}>{c.summary}{c.primary ? ' (Utama)' : ''}</option>)}
+                </Select>
+              </div>
+              <div className="w-full md:flex-1 md:min-w-[200px] md:max-w-xs">
+                <label className="text-sm">{t('dashboard.startFrom')}</label>
+                <input type="datetime-local" value={startValue} className="h-10 w-full px-3 rounded-md border border-neutral-300 dark:border-neutral-700 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 bg-transparent text-neutral-900 dark:text-neutral-100" onChange={e => { setStartValue(e.target.value); setTimeMin(new Date(e.target.value).toISOString()) }} />
+              </div>
+              <div className="w-full md:flex-1 md:min-w-[200px] md:max-w-xs">
+                <label className="text-sm">{t('dashboard.until')}</label>
+                <input type="datetime-local" value={endValue} className="h-10 w-full px-3 rounded-md border border-neutral-300 dark:border-neutral-700 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 bg-transparent text-neutral-900 dark:text-neutral-100" onChange={e => { setEndValue(e.target.value); setTimeMax(new Date(e.target.value).toISOString()) }} />
+              </div>
+              <div className="w-full md:flex-1 md:min-w-[200px] md:max-w-xs">
+                <label className="text-sm">{t('filter.range')}</label>
+                <Select value={rangePreset} onChange={e => {
+                  const v = e.target.value
+                  setRangePreset(v)
+                  let s: Date = now, eD: Date = defaultMax
+                  if (v === 'this_year') { s = startOfYear(now); eD = endOfYear(now) }
+                  else if (v === 'this_month') { s = startOfMonth(now); eD = endOfMonth(now) }
+                  else if (v === 'this_week') { s = startOfWeek(now, { weekStartsOn: 1 }); eD = endOfWeek(now, { weekStartsOn: 1 }) }
+                  else if (v === 'last_year') { const d = subYears(now, 1); s = startOfYear(d); eD = endOfYear(d) }
+                  else if (v === 'last_month') { const d = subMonths(now, 1); s = startOfMonth(d); eD = endOfMonth(d) }
+                  else if (v === 'last_week') { const d = subWeeks(now, 1); s = startOfWeek(d, { weekStartsOn: 1 }); eD = endOfWeek(d, { weekStartsOn: 1 }) }
+                  setStartValue(fmtLocal(s)); setEndValue(fmtLocal(eD))
+                  setTimeMin(s.toISOString()); setTimeMax(eD.toISOString())
+                }}>
+                  <option value="this_year">{t('range.thisYear')}</option>
+                  <option value="this_month">{t('range.thisMonth')}</option>
+                  <option value="this_week">{t('range.thisWeek')}</option>
+                  <option value="last_year">{t('range.lastYear')}</option>
+                  <option value="last_month">{t('range.lastMonth')}</option>
+                  <option value="last_week">{t('range.lastWeek')}</option>
+                </Select>
+              </div>
+              <div className="flex w-full flex-row flex-wrap items-center gap-2">
+                <Toggle checked={onlyReminders} onToggle={() => setOnlyReminders(v => !v)} label={onlyReminders ? t('filters.remindersOnly') : t('filters.allEvents')} />
+                <Toggle
+                  checked={!hideBirthdays}
+                  onToggle={() => {
+                    const next = !hideBirthdays
+                    setHideBirthdays(next)
+                    if (!next) {
+                      // hiding birthdays → pilih kalender non-birthday
+                      const nonBirth = calendars?.find(c => !((c.summary || '').toLowerCase().includes('birthday') || (c.id || '').includes('group.v.calendar.google.com')))
+                      if (nonBirth?.id) setCalendarId(nonBirth.id)
+                    } else {
+                      // showing birthdays → auto switch ke kalender birthdays jika ada
+                      const birth = calendars?.find(c => ((c.summary || '').toLowerCase().includes('birthday')) || ((c.id || '').includes('group.v.calendar.google.com')))
+                      if (birth?.id) setCalendarId(birth.id)
+                    }
+                  }}
+                  label={hideBirthdays ? t('filters.birthdays.hide') : t('filters.birthdays.show')}
+                />
+                <div className="flex w-full md:w-auto md:ml-auto items-center gap-2 md:gap-3">
+                  <Button variant="primary" className="flex-shrink-0 w-full md:w-auto" onClick={() => { setEditing(null); setOpenForm(true) }}>{t('dashboard.addReminder')}</Button>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -138,7 +170,7 @@ export function Dashboard() {
             <CardHeader>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                  <div className="font-semibold break-words" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'}}>{ev.summary}</div>
+                  <div className="font-semibold break-words" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{ev.summary}</div>
                   <div className="text-xs opacity-70">{format(new Date(ev.start.dateTime || ev.start.date || ''), 'dd MMM yyyy HH:mm', { locale: localeID })}</div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 justify-start sm:justify-end">
@@ -150,7 +182,7 @@ export function Dashboard() {
             </CardHeader>
             <CardContent>
               {ev.description ? (
-                <p className="text-sm break-words" style={{display: '-webkit-box', WebkitLineClamp: 6, WebkitBoxOrient: 'vertical', overflow: 'hidden'}}>
+                <p className="text-sm break-words" style={{ display: '-webkit-box', WebkitLineClamp: 6, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                   {(ev.description || '').replace(/<[^>]+>/g, ' ')}
                 </p>
               ) : (

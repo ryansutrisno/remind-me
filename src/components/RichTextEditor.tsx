@@ -20,8 +20,8 @@ export function RichTextEditor({ value, onChange }: Props) {
   }
 
   return (
-    <div className="rounded-md border border-neutral-300 dark:border-neutral-700">
-      <div className="flex gap-1 p-2 border-b border-neutral-200 dark:border-neutral-800">
+    <div className="rounded-md border border-neutral-300 dark:border-slate-700">
+      <div className="flex gap-1 p-2 border-b border-neutral-200 dark:border-slate-700">
         <Button variant="ghost" size="sm" title="Bold" aria-label="Bold" onClick={() => cmd('bold')}><FiBold /></Button>
         <Button variant="ghost" size="sm" title="Italic" aria-label="Italic" onClick={() => cmd('italic')}><FiItalic /></Button>
         <Button variant="ghost" size="sm" title="Underline" aria-label="Underline" onClick={() => cmd('underline')}><FiUnderline /></Button>
@@ -31,10 +31,9 @@ export function RichTextEditor({ value, onChange }: Props) {
       <div
         ref={ref}
         contentEditable
-        className="min-h-[120px] p-3 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 outline-none"
+        className="min-h-[120px] p-3 bg-white dark:bg-slate-800 text-neutral-900 dark:text-neutral-100 outline-none"
         onInput={() => { if (ref.current) onChange(ref.current.innerHTML) }}
       />
     </div>
   )
 }
-

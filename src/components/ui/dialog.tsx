@@ -12,7 +12,7 @@ export function Dialog({ open, onClose, title, children }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className={cn('relative w-[95vw] sm:w-[90vw] md:w-[80vw] max-w-3xl max-h-[90vh] overflow-y-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900')}> 
+      <div className={cn('relative w-[95vw] sm:w-[90vw] md:w-[80vw] max-w-3xl max-h-[90vh] overflow-y-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900')}> 
         {title ? <div className="mb-3 text-lg font-semibold">{title}</div> : null}
         <div>{children}</div>
       </div>
