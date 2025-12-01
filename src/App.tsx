@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FiGlobe, FiLogOut } from 'react-icons/fi'
 import { getTokenRemainingMs, hasAccessToken, initGoogleOAuth, logoutGoogle, refreshTokenSilent } from './lib/google'
 import { Dashboard } from './pages/Dashboard'
@@ -23,6 +23,20 @@ function Shell({ onLogout, status }: { onLogout: () => void; status: string }) {
   const email = userEmail || primary?.summary || 'Account'
   const initial = email?.charAt(0).toUpperCase()
   const [open, setOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement | null>(null)
+  const triggerRef = useRef<HTMLButtonElement | null>(null)
+  useEffect(() => {
+    const handler = (e: MouseEvent | TouchEvent) => {
+      const t = e.target as Node
+      if (open && menuRef.current && triggerRef.current && !menuRef.current.contains(t) && !triggerRef.current.contains(t)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
+    }
+  }, [open])
   return (
     <div>
       <header className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
@@ -35,7 +49,7 @@ function Shell({ onLogout, status }: { onLogout: () => void; status: string }) {
             const v = status === 'Connected' ? 'success' : status.startsWith('Refresh') || status.startsWith('Expiring') ? 'warning' : 'error'
             return <Badge variant={v}>{status}</Badge>
           })()}
-          <button aria-label="Account menu" title="Account menu" className="flex items-center justify-center p-0 h-10 w-10" onClick={() => setOpen(o => !o)}>
+          <button ref={triggerRef} aria-label="Account menu" title="Account menu" className="flex items-center justify-center p-0 h-10 w-10" onClick={() => setOpen(o => !o)}>
             {avatarUrl ? (
               <img src={avatarUrl} alt="avatar" className="h-8 w-8 rounded-full object-cover" />
             ) : (
@@ -43,7 +57,7 @@ function Shell({ onLogout, status }: { onLogout: () => void; status: string }) {
             )}
           </button>
           {open && (
-            <div className="absolute right-0 top-12 z-50 w-56 rounded-md border border-neutral-200 bg-white p-2 shadow-md dark:border-slate-700 dark:bg-slate-800">
+            <div ref={menuRef} className="absolute right-0 top-12 z-50 w-56 rounded-md border border-neutral-200 bg-white p-2 shadow-md dark:border-slate-700 dark:bg-slate-800">
               <div className="mb-2">
                 <div className="text-xs opacity-70">Account</div>
                 <Badge variant="info" className="mt-1 w-full justify-center">{email}</Badge>
