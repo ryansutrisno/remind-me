@@ -4,11 +4,11 @@ type Lang = 'en' | 'id'
 type Dict = Record<string, Record<Lang, string>>
 
 const dict: Dict = {
-  'app.title': { en: 'Remind Me', id: 'Remind Me' },
+  'app.title': { en: 'Reminder Me', id: 'Reminder Me' },
   'app.tagline': { en: 'Wrapper for reminders integrated with Google Calendar', id: 'Aplikasi pembungkus pengingat terintegrasi Google Calendar' },
 
   'login.title': { en: 'Sign in with Google', id: 'Masuk dengan Google' },
-  'login.desc': { en: 'Remind Me helps list and manage reminders directly from your Google Calendar. Please sign in to allow reading and creating reminder events.', id: 'Remind Me membantu kamu melisting dan mengelola pengingat langsung dari Google Calendar kamu. Silakan login untuk mengizinkan akses membaca dan membuat event pengingat.' },
+  'login.desc': { en: 'Reminder Me helps list and manage reminders directly from your Google Calendar. Please sign in to allow reading and creating reminder events.', id: 'Reminder Me membantu kamu melisting dan mengelola pengingat langsung dari Google Calendar kamu. Silakan login untuk mengizinkan akses membaca dan membuat event pengingat.' },
   'login.button': { en: 'Sign in with Google', id: 'Masuk dengan Google' },
 
   'dashboard.calendar': { en: 'Calendar', id: 'Kalender' },

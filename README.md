@@ -1,6 +1,6 @@
-# Remind Me — Google Calendar Integrated Reminder App
+# Reminder Me — Google Calendar Integrated Reminder App
 
-Remind Me is a wrapper application to list and manage reminders based on Google Calendar. Built with React + TypeScript (Vite), Tailwind CSS, shadcn‑style components, system‑aware dark/light theme, and i18n (English + Bahasa Indonesia).
+Reminder Me is a wrapper application to list and manage reminders based on Google Calendar. Built with React + TypeScript (Vite), Tailwind CSS, shadcn‑style components, system‑aware dark/light theme, and i18n (English + Bahasa Indonesia).
 
 ## Key Features
 

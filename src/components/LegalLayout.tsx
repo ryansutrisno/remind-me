@@ -19,7 +19,7 @@ export function LegalLayout({ children, title }: { children: ReactNode; title: s
           </Button>
           <div>
             <h1 className="text-xl font-semibold">{title}</h1>
-            <p className="text-sm opacity-70">Remind Me</p>
+            <p className="text-sm opacity-70">Reminder Me</p>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap justify-end">
