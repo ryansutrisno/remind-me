@@ -110,11 +110,13 @@ Form ↔ Google Calendar field mapping:
   - Enable “Reminders only” and “Hide Birthdays calendar”.
 
 ### Sharing / Open Graph previews
+
 - If Facebook/Twitter shows “Invalid URL” for images, ensure `og:image` and `twitter:image` use absolute URLs (e.g., `https://your-domain/ReminderApps.png`).
 - Place your image in `public/ReminderApps.png` so it is served statically at the site root after build.
 - After changing meta tags, use the sharing debugger to refresh the cache.
 
 ### OAuth consent
+
 - After adding the profile/email scopes, you may need to re‑consent. Use the login button again to grant new scopes.
 
 ## Breaking Changes

@@ -32,8 +32,13 @@ export function LoginPage() {
           <Button variant="primary" className="w-full" onClick={async () => { initGoogleOAuth(); await getAccessToken({ prompt: 'consent' }) }}>{t('login.button')}</Button>
         </div>
       </main>
-      <footer className="p-4 text-center text-xs opacity-70">
-        <a href="https://ryansutrisno.com" target="_blank" rel="noreferrer" className="underline">Made with ❤️ by Ryan Sutrisno</a>
+      <footer className="p-4 text-center text-xs opacity-70 flex flex-col items-center gap-2">
+        <a href="https://ryansutrisno.com" target="_blank" rel="noreferrer" className="hover:underline">Made with ❤️ by Ryan Sutrisno</a>
+        <div className="flex gap-4">
+          <button onClick={() => { window.history.pushState({}, '', '/privacy'); window.dispatchEvent(new PopStateEvent('popstate')) }} className="hover:underline">{t('nav.privacy')}</button>
+          <span>•</span>
+          <button onClick={() => { window.history.pushState({}, '', '/terms'); window.dispatchEvent(new PopStateEvent('popstate')) }} className="hover:underline">{t('nav.terms')}</button>
+        </div>
       </footer>
       <RetroGrid angle={65} cellSize={60} opacity={0.25} lightLineColor="#64748b" darkLineColor="#0ea5e9" />
     </div>

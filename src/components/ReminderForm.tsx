@@ -5,14 +5,17 @@ import { Button } from './ui/button'
 import { CalendarEvent } from '../features/calendar/types'
 import { useI18n } from '../providers/I18nProvider'
 import { RichTextEditor } from './RichTextEditor'
+import { } from 'react'
 
 type Props = {
   initial?: Partial<CalendarEvent>
   onSubmit: (evt: CalendarEvent) => void
   onCancel: () => void
+  suggestLocations?: string[]
+  suggestEmails?: string[]
 }
 
-export function ReminderForm({ initial, onSubmit, onCancel }: Props) {
+export function ReminderForm({ initial, onSubmit, onCancel, suggestLocations = [], suggestEmails = [] }: Props) {
   const { t } = useI18n()
   const [summary, setSummary] = useState(initial?.summary ?? '')
   const [description, setDescription] = useState(initial?.description ?? '')
@@ -27,6 +30,8 @@ export function ReminderForm({ initial, onSubmit, onCancel }: Props) {
   const [remMethod, setRemMethod] = useState<'popup' | 'email'>(initial?.reminders?.overrides?.[0]?.method ?? 'popup')
   const [remMinutes, setRemMinutes] = useState<number>(initial?.reminders?.overrides?.[0]?.minutes ?? 30)
   const [rrule, setRrule] = useState((initial?.recurrence ?? [])[0] ?? '')
+
+  
 
   return (
     <form className="space-y-3" onSubmit={e => { e.preventDefault();
@@ -66,7 +71,10 @@ export function ReminderForm({ initial, onSubmit, onCancel }: Props) {
       </div>
       <div>
         <label className="text-sm">{t('form.location')}</label>
-        <Input value={location} onChange={e => setLocation(e.target.value)} />
+        <Input value={location} onChange={e => setLocation(e.target.value)} list="location-suggestions" />
+        <datalist id="location-suggestions">
+          {suggestLocations.map((loc) => (<option key={loc} value={loc} />))}
+        </datalist>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
@@ -114,7 +122,10 @@ export function ReminderForm({ initial, onSubmit, onCancel }: Props) {
       </div>
       <div>
         <label className="text-sm">{t('form.attendees')}</label>
-        <Input value={attendees} onChange={e => setAttendees(e.target.value)} />
+        <Input value={attendees} onChange={e => setAttendees(e.target.value)} list="email-suggestions" autoComplete="email" />
+        <datalist id="email-suggestions">
+          {suggestEmails.map((em) => (<option key={em} value={em} />))}
+        </datalist>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>

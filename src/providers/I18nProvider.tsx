@@ -56,6 +56,10 @@ const dict: Dict = {
   'form.rrule': { en: 'Recurrence (RRULE)', id: 'Recurrence (RRULE)' },
   'form.cancel': { en: 'Cancel', id: 'Batal' },
   'form.save': { en: 'Save', id: 'Simpan' },
+
+  'nav.privacy': { en: 'Privacy Policy', id: 'Kebijakan Privasi' },
+  'nav.terms': { en: 'Terms of Service', id: 'Syarat & Ketentuan' },
+  'nav.backToApp': { en: '← Back to App', id: '← Kembali ke Aplikasi' },
 }
 
 type Ctx = {

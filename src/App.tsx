@@ -6,6 +6,9 @@ import { LoginPage } from './pages/LoginPage'
 import { I18nProvider, useI18n } from './providers/I18nProvider'
 import { QueryProvider } from './providers/QueryProvider'
 import { ThemeProvider, useTheme } from './providers/ThemeProvider'
+import { PrivacyPolicy } from './pages/PrivacyPolicy'
+import { TermsOfService } from './pages/TermsOfService'
+import { usePathRoute, navigate } from './lib/router'
 
 import { FiMoon, FiSun } from 'react-icons/fi'
 import { Badge } from './components/ui/badge'
@@ -83,6 +86,7 @@ function Shell({ onLogout, status }: { onLogout: () => void; status: string }) {
 }
 
 export function App() {
+  const currentPath = usePathRoute()
   const [authed, setAuthed] = useState(hasAccessToken())
   const [status, setStatus] = useState('Not connected')
   useEffect(() => {
@@ -105,19 +109,34 @@ export function App() {
     }, 30000)
     return () => clearInterval(t)
   }, [])
+
+  const renderContent = () => {
+    if (currentPath === '/privacy') return <PrivacyPolicy />
+    if (currentPath === '/terms') return <TermsOfService />
+    
+    return authed ? (
+      <>
+        <Shell onLogout={() => { logoutGoogle(); setAuthed(false); setStatus('Not connected') }} status={status} />
+        <div className="p-4"><Dashboard /></div>
+        <footer className="p-4 border-t border-slate-200 dark:border-slate-700 text-center text-xs opacity-70 flex flex-col items-center gap-2">
+          <div className="flex gap-4">
+            <button onClick={() => navigate('/privacy')} className="hover:underline">Privacy Policy</button>
+            <span>•</span>
+            <button onClick={() => navigate('/terms')} className="hover:underline">Terms of Service</button>
+          </div>
+        </footer>
+      </>
+    ) : (
+      <LoginPage />
+    )
+  }
+
   return (
     <I18nProvider>
       <ThemeProvider>
         <QueryProvider>
           <div className="min-h-screen text-neutral-900 dark:text-neutral-100">
-            {authed ? (
-              <>
-                <Shell onLogout={() => { logoutGoogle(); setAuthed(false); setStatus('Not connected') }} status={status} />
-                <div className="p-4"><Dashboard /></div>
-              </>
-            ) : (
-              <LoginPage />
-            )}
+            {renderContent()}
           </div>
         </QueryProvider>
       </ThemeProvider>

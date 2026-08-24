@@ -191,11 +191,17 @@ export function Dashboard() {
       </div>
 
       <Dialog open={openForm} onClose={() => setOpenForm(false)} title={editing ? t('dialog.editTitle') : t('dialog.addTitle')}>
-        <ReminderForm initial={editing ?? undefined} onCancel={() => setOpenForm(false)} onSubmit={async (evt) => {
-          if (editing?.id) await updateEvt.mutateAsync({ id: editing.id!, partial: evt })
-          else await createEvt.mutateAsync(evt)
-          setOpenForm(false)
-        }} />
+        <ReminderForm
+          initial={editing ?? undefined}
+          suggestLocations={[...new Set((items.map(ev => ev.location).filter(Boolean) as string[]))]}
+          suggestEmails={[...new Set(items.flatMap(ev => ev.attendees?.map(a => a.email) || []))]}
+          onCancel={() => setOpenForm(false)}
+          onSubmit={async (evt) => {
+            if (editing?.id) await updateEvt.mutateAsync({ id: editing.id!, partial: evt })
+            else await createEvt.mutateAsync(evt)
+            setOpenForm(false)
+          }}
+        />
       </Dialog>
     </div>
   )
